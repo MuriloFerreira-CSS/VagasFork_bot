@@ -32,12 +32,17 @@ class LinkedInScraper(ScraperBase):
         localizacao="São Paulo, Brazil",
         geo_id=None,
         apenas_remoto=True,
+        modo="sp",
         paginas=2,
     ):
         self.palavra_chave = palavra_chave
         self.localizacao = localizacao
         self.geo_id = geo_id
         self.apenas_remoto = apenas_remoto
+        # "modo" marca a origem da busca ("sp" ou "remoto"), pra não depender
+        # de adivinhar pelo texto de localização — o LinkedIn costuma exibir
+        # só "Brazil" em vagas remotas, sem escrever "remoto" nenhuma vez.
+        self.modo = modo
         self.paginas = paginas
 
     def buscar_vagas(self) -> list[dict]:
@@ -96,11 +101,13 @@ class LinkedInScraper(ScraperBase):
 
             return {
                 "id": f"linkedin_{vaga_id}",
+                "job_id": vaga_id,
                 "titulo": titulo_tag.get_text(strip=True),
                 "empresa": empresa_tag.get_text(strip=True) if empresa_tag else "",
                 "local": local_tag.get_text(strip=True) if local_tag else "",
                 "url": url,
                 "fonte": self.nome_fonte,
+                "modo": self.modo,
             }
         except Exception as e:
             print(f"[ERRO] Falha ao parsear card do LinkedIn: {e}")

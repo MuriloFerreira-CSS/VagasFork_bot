@@ -7,14 +7,20 @@ import config
 
 
 def enviar_vaga(vaga: dict):
+    link = vaga.get("link_aplicacao") or vaga.get("url", "")
+
     texto = (
         f"🎯 *Nova vaga de estágio!*\n\n"
         f"*{_escapar(vaga.get('titulo', 'Sem título'))}*\n"
         f"🏢 {_escapar(vaga.get('empresa', 'Empresa não informada'))}\n"
         f"📍 {_escapar(vaga.get('local', 'Local não informado'))}\n"
         f"🌐 Fonte: {_escapar(vaga.get('fonte', ''))}\n\n"
-        f"🔗 {vaga.get('url', '')}"
+        f"🔗 {link}"
     )
+
+    if vaga.get("email_candidatura_enviada"):
+        texto += f"\n\n✅ Currículo já enviado automaticamente para {vaga.get('email_contato', '')}"
+
     _enviar_mensagem(texto)
 
 

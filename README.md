@@ -46,7 +46,32 @@ Boas fontes pra tentar em seguida:
 - **Gupy**: muitas empresas usam o mesmo template — vale investigar a API interna do board de vagas de empresas específicas (ex: `https://<empresa>.gupy.io`)
 - **Vagas.com** / **InfoJobs**: scraping de HTML com BeautifulSoup, parecido com o do LinkedIn
 
+## 4. Candidatura automática por e-mail + link direto
+
+Quando uma vaga tem e-mail de contato na descrição, o bot manda um e-mail automático com seu currículo em anexo, e sempre inclui na notificação do Telegram o link direto de aplicação (o oficial do site da empresa, quando a vaga tiver um, ou o link do LinkedIn).
+
+**Configuração (secrets do GitHub, iguais aos do Telegram):**
+
+| Secret | O que é |
+|---|---|
+| `CANDIDATO_NOME` | Seu nome, usado no corpo do e-mail |
+| `RESUME_PATH` | Caminho do seu currículo dentro do repositório, ex: `curriculo.pdf` |
+| `SMTP_USER` | Seu e-mail (ex: Gmail) |
+| `SMTP_PASSWORD` | **Senha de app**, não a senha normal — no Gmail: Conta Google → Segurança → Verificação em duas etapas → Senhas de app |
+| `SMTP_HOST` | `smtp.gmail.com` (ou o SMTP do seu provedor) |
+| `SMTP_PORT` | `587` |
+| `EMAIL_DRY_RUN` | `true` (recomendado no início) ou `false` |
+
+**Passos:**
+1. Suba seu currículo (PDF) pra raiz do repositório com o nome que você definir em `RESUME_PATH`
+2. Crie os secrets acima
+3. Deixe `EMAIL_DRY_RUN=true` no começo — o bot só vai *simular* o envio e mostrar no log o que mandaria, sem disparar de verdade. Confira o log de algumas execuções pra ver se o texto e o e-mail detectado fazem sentido
+4. Quando estiver satisfeito, muda o secret `EMAIL_DRY_RUN` pra `false` — aí os e-mails passam a ser enviados de verdade (você recebe uma cópia oculta de cada um, via BCC)
+
+⚠️ **Atenção**: com `EMAIL_DRY_RUN=false`, o bot manda e-mail de verdade pra empresas sem você revisar antes. Vale rodar em dry run por um tempo pra garantir que o texto e o currículo estão bons, e ficar de olho nos logs depois de ativar.
+
 ## Avisos
 
 - O scraper do LinkedIn usa um endpoint público não-oficial (usado pela paginação do site). Pode mudar sem aviso — se parar de retornar vagas, o `class_=` dos elementos em `scrapers/linkedin.py` é o primeiro lugar pra checar.
-- Ajuste `INCLUDE_KEYWORDS` e `EXCLUDE_KEYWORDS` em `config.py` conforme for vendo o que funciona.
+- Ajuste `INCLUDE_KEYWORDS`, `EXCLUDE_KEYWORDS`, `SP_KEYWORDS` e `REMOTO_KEYWORDS` em `config.py` conforme for vendo o que funciona.
+- Automatizar o "Easy Apply" do LinkedIn (candidatura só dentro do site) não é feito por esse bot de propósito — viola os termos de uso do LinkedIn e pode banir a conta.

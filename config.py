@@ -29,25 +29,13 @@ EXCLUDE_KEYWORDS = [
     "especialista",
 ]
 
-# Regra de localização:
-#   - Vaga em São Paulo (cidade ou grande SP): passa em QUALQUER modalidade
-#     (presencial, híbrido ou remoto).
-#   - Vaga fora de São Paulo: só passa se for 100% remota/home office.
-#   - País estrangeiro: nunca passa, mesmo que esteja marcada como remota.
-SP_KEYWORDS = [
-    "são paulo", "sao paulo", "s. paulo",
-    " sp,", " sp -", " sp)", ", sp", "(sp)",
-    "guarulhos", "osasco", "santo andré", "santo andre", "são bernardo",
-    "sao bernardo", "diadema", "barueri", "carapicuíba", "carapicuiba",
-    "mogi das cruzes", "suzano", "taboão da serra", "taboao da serra",
-]
-
-REMOTO_KEYWORDS = [
-    "remoto", "remote", "home office", "trabalho remoto", "100% remoto",
-]
-
+# Regra de localização (aplicada na hora da BUSCA, em main.py — ver FONTES):
+#   - Vaga em São Paulo (localização = "São Paulo, Brazil" na busca): passa
+#     em QUALQUER modalidade (presencial, híbrido ou remoto).
+#   - Vaga fora de São Paulo: só passa se for 100% remota (f_WT=2 na busca).
 # Se a localização contiver qualquer um desses termos, a vaga é descartada
-# de cara, mesmo que pareça remota.
+# de cara — serve de trava de segurança pro caso do LinkedIn misturar
+# resultado de fora do Brasil numa busca escopada pro país.
 LOCATION_EXCLUDE_KEYWORDS = [
     "united states", "usa", "estados unidos", "canada", "canadá",
     "united kingdom", "portugal", "mexico", "méxico", "india", "índia",
@@ -77,3 +65,26 @@ DB_PATH = os.environ.get("DB_PATH", "vagas.db")
 
 # --- Localização (opcional, usado como filtro em algumas fontes) ---
 LOCATION_QUERY = os.environ.get("LOCATION_QUERY", "Brasil")
+
+# --- Envio automático de e-mail para vagas com candidatura por e-mail ---
+CANDIDATO_NOME = os.environ.get("CANDIDATO_NOME", "Seu Nome")
+RESUME_PATH = os.environ.get("RESUME_PATH", "curriculo.pdf")
+
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")  # senha de app, nunca a senha normal da conta
+
+EMAIL_ASSUNTO_TEMPLATE = "Candidatura para a vaga de {titulo}"
+EMAIL_CORPO_TEMPLATE = (
+    "Olá,\n\n"
+    "Me chamo {nome} e tenho interesse na vaga de {titulo} na {empresa}, "
+    "encontrada no LinkedIn.\n"
+    "Segue meu currículo em anexo. Fico à disposição para conversar.\n\n"
+    "Atenciosamente,\n{nome}"
+)
+
+# Enquanto True, o bot só MOSTRA no log o e-mail que mandaria, sem enviar
+# de verdade. Deixe True até conferir que texto e currículo estão certos,
+# e só troque pra False (via secret no GitHub) quando tiver certeza.
+EMAIL_DRY_RUN = os.environ.get("EMAIL_DRY_RUN", "true").lower() == "true"
