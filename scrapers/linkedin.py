@@ -13,13 +13,31 @@ from scrapers.base import ScraperBase
 
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
 
+# geoId do Brasil no LinkedIn. Só usado se você quiser forçar o país
+# inteiro; para uma cidade específica (ex: São Paulo) é melhor deixar
+# geo_id=None e usar o texto em "localizacao", pois passar os dois juntos
+# faz o LinkedIn priorizar o geoId e ignorar a cidade.
+GEO_ID_BRASIL = "106057199"
+
+# f_WT = tipo de local de trabalho no LinkedIn: 1=Presencial, 2=Remoto, 3=Híbrido
+WORKPLACE_TYPE_REMOTO = "2"
+
 
 class LinkedInScraper(ScraperBase):
     nome_fonte = "LinkedIn"
 
-    def __init__(self, palavra_chave="estágio dados", localizacao="Brasil", paginas=2):
+    def __init__(
+        self,
+        palavra_chave="estágio dados",
+        localizacao="São Paulo, Brazil",
+        geo_id=None,
+        apenas_remoto=True,
+        paginas=2,
+    ):
         self.palavra_chave = palavra_chave
         self.localizacao = localizacao
+        self.geo_id = geo_id
+        self.apenas_remoto = apenas_remoto
         self.paginas = paginas
 
     def buscar_vagas(self) -> list[dict]:
@@ -35,8 +53,13 @@ class LinkedInScraper(ScraperBase):
             params = {
                 "keywords": self.palavra_chave,
                 "location": self.localizacao,
+                "f_TPR": "r86400",  # só vagas postadas nas últimas 24h
                 "start": pagina * 25,
             }
+            if self.geo_id:
+                params["geoId"] = self.geo_id
+            if self.apenas_remoto:
+                params["f_WT"] = WORKPLACE_TYPE_REMOTO
             try:
                 resp = requests.get(BASE_URL, params=params, headers=headers, timeout=15)
                 resp.raise_for_status()

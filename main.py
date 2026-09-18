@@ -19,12 +19,31 @@ FONTES = [
 
 
 def vaga_relevante(vaga: dict) -> bool:
-    texto = f"{vaga.get('titulo', '')} {vaga.get('empresa', '')}".lower()
+    # Filtro de conteúdo: precisa parecer estágio de verdade, no título.
+    titulo = vaga.get("titulo", "").lower()
+    tem_keyword_incluida = any(kw.lower() in titulo for kw in config.INCLUDE_KEYWORDS)
+    tem_keyword_excluida = any(kw.lower() in titulo for kw in config.EXCLUDE_KEYWORDS)
+    if not tem_keyword_incluida or tem_keyword_excluida:
+        return False
 
-    tem_keyword_incluida = any(kw.lower() in texto for kw in config.INCLUDE_KEYWORDS)
-    tem_keyword_excluida = any(kw.lower() in texto for kw in config.EXCLUDE_KEYWORDS)
+    # Filtro de localização:
+    #   - São Paulo (capital/grande SP): passa em qualquer modalidade
+    #   - Fora de SP: só passa se for 100% remota
+    #   - País estrangeiro: nunca passa
+    local = vaga.get("local", "").lower()
+    texto_local = f"{local} {titulo}"
 
-    return tem_keyword_incluida and not tem_keyword_excluida
+    if any(kw in local for kw in config.LOCATION_EXCLUDE_KEYWORDS):
+        return False
+
+    eh_sp = any(kw in local for kw in config.SP_KEYWORDS)
+    eh_remoto = any(kw in texto_local for kw in config.REMOTO_KEYWORDS)
+
+    if eh_sp:
+        return True
+    if eh_remoto:
+        return True
+    return False
 
 
 def main():
