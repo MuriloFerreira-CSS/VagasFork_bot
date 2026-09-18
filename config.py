@@ -66,6 +66,12 @@ DB_PATH = os.environ.get("DB_PATH", "vagas.db")
 # --- Localização (opcional, usado como filtro em algumas fontes) ---
 LOCATION_QUERY = os.environ.get("LOCATION_QUERY", "Brasil")
 
+# --- Notificação por WhatsApp (via CallMeBot, opcional) ---
+# Deixe em branco pra notificar só pelo Telegram. Veja instruções de
+# ativação no topo de whatsapp_notifier.py.
+WHATSAPP_PHONE = os.environ.get("WHATSAPP_PHONE", "")   # ex: 5511999999999
+WHATSAPP_APIKEY = os.environ.get("WHATSAPP_APIKEY", "")
+
 # --- Envio automático de e-mail para vagas com candidatura por e-mail ---
 CANDIDATO_NOME = os.environ.get("CANDIDATO_NOME", "Seu Nome")
 RESUME_PATH = os.environ.get("RESUME_PATH", "curriculo.pdf")

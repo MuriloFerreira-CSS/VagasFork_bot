@@ -70,6 +70,26 @@ Quando uma vaga tem e-mail de contato na descrição, o bot manda um e-mail auto
 
 ⚠️ **Atenção**: com `EMAIL_DRY_RUN=false`, o bot manda e-mail de verdade pra empresas sem você revisar antes. Vale rodar em dry run por um tempo pra garantir que o texto e o currículo estão bons, e ficar de olho nos logs depois de ativar.
 
+## 5. Notificação também no WhatsApp (opcional)
+
+Usa o [CallMeBot](https://www.callmebot.com/blog/free-api-whatsapp-messages/), um serviço gratuito pra notificação pessoal (não precisa de conta de desenvolvedor Meta nem aprovação de negócio).
+
+**Ativação (só uma vez, fora do código):**
+1. Salva o número **+34 644 59 71 67** nos seus contatos do WhatsApp
+2. Manda pra esse número, no WhatsApp, exatamente esta mensagem: `I allow callmebot to send me messages`
+3. Em alguns minutos ele responde com sua **API key**
+
+**Secrets do GitHub:**
+
+| Secret | O que é |
+|---|---|
+| `WHATSAPP_PHONE` | Seu número com código do país, sem `+` nem espaços (ex: `5511999999999`) |
+| `WHATSAPP_APIKEY` | A API key que o CallMeBot te mandou |
+
+Com esses dois configurados, toda vaga nova é enviada tanto no Telegram quanto no WhatsApp automaticamente. Se deixar em branco, ele continua notificando só pelo Telegram, sem erro.
+
+⚠️ É um serviço de terceiros com limite de uso — serve bem pra notificação pessoal de baixo volume, mas não é a API oficial do WhatsApp. Se quiser algo mais robusto (com SLA, sem depender de terceiro), a alternativa é a [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api) oficial da Meta, que exige criar um app de desenvolvedor.
+
 ## Avisos
 
 - O scraper do LinkedIn usa um endpoint público não-oficial (usado pela paginação do site). Pode mudar sem aviso — se parar de retornar vagas, o `class_=` dos elementos em `scrapers/linkedin.py` é o primeiro lugar pra checar.

@@ -10,6 +10,7 @@ import db
 import email_sender
 import job_details
 import notifier
+import whatsapp_notifier
 from scrapers.linkedin import GEO_ID_BRASIL, LinkedInScraper
 
 # Adicione novos scrapers aqui conforme forem implementados
@@ -102,6 +103,7 @@ def main():
                     vaga["email_candidatura_enviada"] = not config.EMAIL_DRY_RUN
 
             notifier.enviar_vaga(vaga)
+            whatsapp_notifier.enviar_vaga(vaga)
             db.marcar_como_enviada(vaga)
             total_novas += 1
 
