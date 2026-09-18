@@ -1,0 +1,38 @@
+name: Buscar vagas de estágio
+
+on:
+  schedule:
+    # Roda a cada 3 horas (ajuste como quiser: https://crontab.guru)
+    - cron: "0 */3 * * *"
+  workflow_dispatch: {} # permite rodar manualmente pela aba Actions
+
+jobs:
+  buscar-vagas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      # Baixa o banco salvo na execução anterior, se existir, pra manter
+      # o histórico de vagas já enviadas entre execuções do Actions.
+      - name: Restaurar banco de dados
+        uses: actions/cache@v4
+        with:
+          path: vagas.db
+          key: vagas-db-${{ github.run_id }}
+          restore-keys: |
+            vagas-db-
+
+      - name: Rodar bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
